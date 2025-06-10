@@ -2,21 +2,24 @@ import uuid
 from typing import Dict, Any, List, Optional
 
 # src
-from jarvis.domain.search.algorithm.linear_knn import LinearKNN
+from src.jarvis.domain.search.algorithm.linear_knn import LinearKNN
+from src.jarvis.domain.search.algorithm.hierarchical_knn import HierarchicalKNN
+from src.jarvis.domain.genai.document import Document
 
 
 class VectorStore:
     """
-    A simple in-memory mock of a vector database (vectordb).
+    A simple in-memory mock of a vector database designed to work with Document/Chunk classes.
 
-    This class simulates basic vector database functionality for testing or prototyping purposes.
-    It allows storing vectors along with their associated metadata, retrieving all stored vectors and metadata,
-    and checking the number of stored vectors.
+    This stores chunks as the primary searchable units, since they contain the embeddings.
+    Documents are tracked separately for metadata and organization.
     """
     def __init__(self):
-        """Initialize the vector store."""
-        # Dictionary to store multiple indexes
-        # Structure: {index_name: {'texts': [], 'vectors': [], 'metadata': [], 'doc_ids': [], 'mappings': {}}}
+        """
+        Initialize the vector store.
+
+        Structure: {index_name: {'texts': [], 'vectors': [], 'metadata': [], 'dimension': int, 'mappings': {}}}
+        """
         self.indexes: Dict[str, Dict[str, Any]] = {}
 
     def __len__(self):
@@ -30,68 +33,40 @@ class VectorStore:
         """
         return index_name in self.indexes
 
-    def get_all(self, index_name: str = None):
-        """
-        Get all texts, vectors and metadata.
-        
-        Args:
-            index_name (str, optional): Specific index to retrieve from
-        
-        Returns:
-            tuple: (texts, vectors, metadata)
-        
-        Raises:
-            ValueError: If the specified index does not exist
-        """
-        if index_name:
-            if index_name not in self.vector_store:
-                raise ValueError(f"Index '{index_name}' does not exist.")
-            index_data = self.vector_store[index_name]
-            return (
-                [doc.get("text") for doc in index_data],
-                [doc.get("vector") for doc in index_data],
-                [doc.get("metadata") for doc in index_data],
-            )
-        
-        # If no index_name is specified, return from all indexes
-        all_texts, all_vectors, all_metadata = [], [], []
-        for index_data in self.vector_store.values():
-            all_texts.extend(doc.get("text") for doc in index_data)
-            all_vectors.extend(doc.get("vector") for doc in index_data)
-            all_metadata.extend(doc.get("metadata") for doc in index_data)
-        
-        return all_texts, all_vectors, all_metadata
-
+    # TODO: Make the creation of indexes dinamic based on the index_body.
     def create_index(self, index_name: str, index_body: dict):
-        """Create a new index
-
+        """
+        Create a new index for storing documents and chunks.
+        
         Args:
-            index_name (str): Index name
-            index_body (dict): Index definition
-
+            index_name (str): Name of the index
+            index_body (dict): Index definition with mappings and configuration
+            
         Example:
-            # Create an index with KNN enabled for vector storage
             index_body = {
                 "mappings": {
                     "properties": {
-                        "text": {
-                            "type": "text"
-                        },
+                        "texts": {"type": "List[str]"},
+                        "vectors": {"type": "List[float]"},
                         "metadata": {
-                            "type": "object"
-                        },
-                        "vector_field": {
-                            "type": "knn_vector",
-                            "dimension": 1536,
+                            "type": "object",
+                            "properties": {
+                                "document_id": {"type": "string"},
+                                "title": {"type": "string"},
+                                "author": {"type": "string"},
+                                "chunk_source": {"type": "string"},
+                                "chunk_page": {"type": "integer"},
+                                "chunk_id": {"type": "string"},
+                            }
                         },
                     }
-                },
+                }
             }
         """
         if index_name in self.indexes:
             raise ValueError(f"Index '{index_name}' already exists")
 
-        # Extract dimension from the vector field
+        # Extract vector dimension from index_body mappings
         vector_props = index_body.get("mappings", {}).get("properties", {})
         dimension = None
         for _, props in vector_props.items():
@@ -106,7 +81,6 @@ class VectorStore:
             'texts': [],
             'vectors': [],
             'metadata': [],
-            'doc_ids': [],
             'dimension': dimension,
             'mappings': index_body.get('mappings', {}),
         }
@@ -124,78 +98,77 @@ class VectorStore:
     def index_document(
         self,
         index_name: str,
-        doc: dict
+        document: Document
     ):
         """Index a document
 
         Args:
             index_name (str): Index name
-            doc (dict): Document to index
-
-        Example:
-            doc = {
-                "text": "This is a test document",
-                "metadata": {
-                    "title": "Test document",
-                    "author": "John Doe",
-                    "date": "2021-01-01",
-                },
-                "vector_field": [0.1, 0.2, 0.3, ...],
-            }
+            doc (Document): Document to index
         """
         if index_name not in self.indexes:
             raise ValueError(f"Index '{index_name}' does not exist")
-        
-        # Extract vector from document
-        vector = None
-        metadata = {}
-        doc_id = str(uuid.uuid4())  # Generate a unique ID for the document
-        
-        for key, value in doc.items():
-            if key == 'vector_field':
-                vector = value
-            elif key == 'text':
-                text = value
-            else:
-                metadata = value
-        
-        if vector is None:
-            raise ValueError("Document must contain a 'vector_field'")
-        
-        # Validate vector dimension if specified
+
         index_data = self.indexes[index_name]
         dimension = index_data['dimension']
-        if len(vector) != dimension:
-            raise ValueError(f"Vector dimension {len(vector)} doesn't match document dimension {dimension}")
-    
-        # Store the document
-        index_data = self.indexes[index_name]
-        index_data['texts'].append(text)
-        index_data['vectors'].append(vector)
-        index_data['metadata'].append(metadata)
-        index_data['doc_ids'].append(doc_id)
+
+        # Index each chunk in the Document separately
+        for chunk in document.chunks:
+            text = chunk.text
+            vector = chunk.embedding
+            if len(vector) != dimension:
+                raise ValueError(
+                    f"Vector dimension {len(vector)} doesn't match index dimension {dimension}"
+                )
+
+            # Combined metadata: document metadata + chunk metadata
+            metadata = {
+                "document_id": str(document.id),
+                "title": document.metadata.title,
+                "author": document.metadata.author,
+                "chunk_source": chunk.metadata.source,
+                "chunk_page": chunk.metadata.page,
+                "chunk_id": str(chunk.id),
+            }
+
+            index_data['texts'].append(text)
+            index_data['vectors'].append(vector)
+            index_data['metadata'].append(metadata)
 
     def delete_document(self, index_name: str, doc_id: str):
-        """Delete a document
+        """
+        Delete a document and all its associated chunks from the index.
 
         Args:
-            index_name (str): Index name
-            doc_id (str): Document ID
+            index_name (str): The name of the index.
+            doc_id (str): The ID of the document to delete.
+        
+        Raises:
+            ValueError: If the index does not exist or the document ID is not found.
         """
         if index_name not in self.indexes:
             raise ValueError(f"Index '{index_name}' does not exist")
         
         index_data = self.indexes[index_name]
-        try:
-            idx = index_data['doc_ids'].index(doc_id)
+
+        # Find all indices where the metadata's document_id matches the requested doc_id
+        idxs = [
+            i for i, meta in enumerate(index_data['metadata'])
+            if meta.get('document_id') == doc_id
+        ]
+
+        # If the list of indices is empty, the document was not found
+        if not idxs:
+            raise ValueError(f"Document with ID '{doc_id}' not found in index '{index_name}'")
+
+        # Delete items from the lists by index, starting from the end
+        # to avoid messing up the indices of subsequent items.
+        for idx in sorted(idxs, reverse=True):
             del index_data['texts'][idx]
             del index_data['vectors'][idx]
             del index_data['metadata'][idx]
-            del index_data['doc_ids'][idx]
-        except ValueError:
-            raise ValueError(f"Document with ID '{doc_id}' not found")
 
-    def query_index(self, index_name: str, query_vector: List[float], top_k: int = 5, algorithm: Optional[str] = "linear", distance: Optional[str] = "euclidean"):
+    def query_index(self, index_name: str, query_vector: List[float], top_k: int = 5, algorithm: Optional[str] = "linear", distance: Optional[str] = "euclidean", decay_factor: Optional[float] = 0.9):
         """
         Query an index by a query vector to find the top-k nearest neighbors.
 
@@ -219,14 +192,16 @@ class VectorStore:
         if index_name not in self.indexes:
             raise ValueError(f"Index '{index_name}' does not exist")
         
-        if algorithm == "linear":
-            # Initialize LinearKNN with the specified distance metric
-            linear_knn = LinearKNN(distance_metric=distance.lower())
+        if algorithm in {"linear", "hierarchical"}:
+            # Select the appropriate KNN class
+            if algorithm == "linear":
+                knn = LinearKNN(distance_metric=distance.lower())
+            elif algorithm == "hierarchical":
+                knn = HierarchicalKNN(distance_metric=distance.lower(), decay_factor=decay_factor)
             
             index_data = self.indexes[index_name]
             vectors = index_data['vectors']
             metadata = index_data['metadata']
-            doc_ids = index_data['doc_ids']
             
             if not vectors:
                 return []
@@ -235,9 +210,9 @@ class VectorStore:
             similarities = []
             for i, stored_vector in enumerate(vectors):
                 # Use the LinearKNN.score() method to calculate scores
-                score = linear_knn.score(query_vector, stored_vector)
+                score = knn.score(query_vector, stored_vector)
                 similarities.append({
-                    'id': doc_ids[i],
+                    'id': metadata[i]['document_id'],
                     'score': score,
                     'metadata': metadata[i]
                 })

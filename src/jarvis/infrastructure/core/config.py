@@ -19,10 +19,10 @@ class Config(BaseSettings):
 
     # Cohere Configuration
     COHERE_KEY: str = ""
+    EMB_DIMENSION: int = 3072   # transformers: 768, large: 3072
 
     # Vector Store Configuration
     VECTORSTORE_INDEX_NAME: str = "jarvis01"
-    VECTORSTORE_DIMENSION: int = 1536
     VECTORSTORE_TOP_K: int = 5
     VECTORSTORE_ALGORITHM: str = "linear"   # linear, hierarchical
     VECTORSTORE_DISTANCE: str = "euclidean"

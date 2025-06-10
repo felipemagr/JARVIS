@@ -34,10 +34,10 @@ class HierarchicalKNN:
         if len(a) != len(b):
             raise ValueError(f"Vector length mismatch: len(a)={len(a)} != len(b)={len(b)}")
     
-    def _hierarchical_weights(self, dimensions: int) -> List[float]:
+    def _hierarchical_weights(self, dimension: int) -> List[float]:
         """Generate hierarchical weights where earlier dimensions have more importance."""
         weights = []
-        for i in range(dimensions):
+        for i in range(dimension):
             weight = self.decay_factor ** i
             weights.append(weight)
         return weights

@@ -29,3 +29,7 @@ List the available commands:
 ```
 make help
 ```
+
+## Design decisions
+
+- I removed the `Library` class because its functionality overlapped with the `VectorStore` class. In my view, both classes served the same purpose, so only `VectorStore` was retained.
