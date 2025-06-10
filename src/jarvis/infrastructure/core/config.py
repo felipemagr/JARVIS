@@ -17,16 +17,19 @@ class Config(BaseSettings):
 
     GENAI_ENVIRONMENT: str = "local"
 
-    # COHERE Configuration
+    # Cohere Configuration
     COHERE_KEY: str = ""
 
     # Vector Store Configuration
     VECTORSTORE_INDEX_NAME: str = "jarvis01"
     VECTORSTORE_DIMENSION: int = 1536
     VECTORSTORE_TOP_K: int = 5
-    VECTORSTORE_ALGORITHM: str = "linear"
+    VECTORSTORE_ALGORITHM: str = "linear"   # linear, hierarchical
     VECTORSTORE_DISTANCE: str = "euclidean"
     VECTORSTORE_INDEX_BODY: str = "vectorstore_index_body.json"
+    
+    # Hierarchical KNN Configuration
+    VECTORSTORE_DECAY_FACTOR: float = 0.9
 
     model_config = ConfigDict(extra="ignore")
 

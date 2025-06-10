@@ -8,6 +8,15 @@ class LinearKNN:
     """
     Pure scoring class — computes similarity or distance between two vectors
     using the specified distance metric.
+
+    Notes and limitations:
+        - This implementation is the perfect representation of brute force. This is not
+        efficient nor scalable in ANY way. Thankfully I am implementing this as a proof
+        of my coding abilities and not as a real-life solution... Long live LangChain !!!
+        - This is not a KNN algorithm in the traditional sense, as it does not involve 
+        finding the k-nearest neighbors (this is done in VectorStore, following a similar
+        approach as the OpenSearch native client). Instead, it simply computes the distance 
+        or similarity score between two vectors.
     """
 
     def __init__(self, distance_metric: str = 'euclidean'):
