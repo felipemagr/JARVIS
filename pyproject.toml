@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "vector-db"
+version = "0.1.0"
+description = "A modular FastAPI project using Cohere embeddings and vector search."
+authors = ["Felipe Macías <felipemaciasgranado@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "vector_db", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "0.115.12"
+uvicorn = "0.34.3"
+pydantic = "2.11.5"
+numpy = "2.3.0"
+cohere = "5.15.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "8.4.0"
+pytest-asyncio = "1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
