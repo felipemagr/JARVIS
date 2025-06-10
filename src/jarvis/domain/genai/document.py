@@ -3,7 +3,7 @@ from typing import List
 from uuid import UUID, uuid4
 
 # src
-from vector_db.domain.genai.chunk import Chunk
+from jarvis.domain.genai.chunk import Chunk
 
 
 class DocumentMetadata(BaseModel):

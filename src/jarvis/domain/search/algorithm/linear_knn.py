@@ -1,7 +1,7 @@
 from typing import List
 
 #src
-from src.vector_db.domain.search.utils import euclidean_distance, cosine_similarity
+from src.jarvis.domain.search.utils import euclidean_distance, cosine_similarity
 
 
 class LinearKNN:
