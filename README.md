@@ -71,7 +71,7 @@ Once the application is running, you can test the available endpoints using the 
 - Sample data has been generated with OpenAI's GPT-4.1-mini.
 - To prevent data races during concurrent reads and writes, all access to the in-memory index data is protected by a reentrant lock (threading.RLock). This ensures that only one thread can modify or read the shared data at a time.
 - The `Ingestor` class is a dedicated service responsible for ingesting and processing raw data from JSON files, i.e., performing ETL (Extract, Transform, Load). It handles parsing documents, splitting them into token chunks, generating embeddings via Cohere API, and structuring domain objects. It encapsulates ingestion logic separately from API endpoints and the vectorstore persistence layer.
-- I relied more on AI than I would have preferred when building the API, as this is the area where I have the least experience. I've previously worked with APIs, but this was my first time designing and building one from scratch.
+- I relied more on AI than I would have preferred when building the API, as this is the area where I have the least experience on. I've been working with APIs this whole last year, but this was my first time designing and building one from scratch.
 
 ### Indexing algorithms
 
@@ -117,4 +117,4 @@ Due to time contraints and while also prioritising the speed I could come up wit
 ### 4. Python SDK Client
 
 - **Approach:**  
-  Seems like a reasonable next step. In my current work I just have finished the creation of a library for my team (and probably soon for the whole bank), so I am familiar in what I would need to wrap the API calls with interfaces more user-friendly.
+  Seems like a reasonable next step. In my current work I have just finished the creation of a library for my team (and probably soon for the whole bank), so I am familiar in what I would need to wrap the API calls with interfaces more user-friendly.

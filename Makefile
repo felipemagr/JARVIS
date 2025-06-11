@@ -73,26 +73,6 @@ install:  ## Install the project in dev mode.
 	poetry install
 	@echo "Don't forget to run 'make shell' if you got errors."
 
-.PHONY: run-black
-run-black:  ## Run black to format code.
-	@echo "Running black to format code... 🪄"
-	@poetry run black .
-
-.PHONY: run-flake8
-run-flake8:  ## Run flake8 to revision code format.
-	@echo "Running flake8 to revision code format... 🪄"
-	@poetry run flake8 --config pyproject.toml
-
-.PHONY: run-isort
-run-isort:  ## Run isort to organize imports.
-	@echo "Running isort to organize imports... 🪄"
-	@poetry run isort .
-
-.PHONY: run-pautoflake
-run-pautoflake:  ## Run pautoflake to delete unused imports.
-	@echo "Running pautoflake to delete unused imports... 🪄"
-	@poetry run pautoflake --config pyproject.toml ./src ./tests
-
 .PHONY: shell
 shell:  ## Open a virtual environment.
 	poetry shell
