@@ -38,7 +38,6 @@ class VectorStore:
         with self._lock:
             return index_name in self.indexes
 
-    # TODO: Make the creation of indexes dinamic based on the index_body.
     def create_index(self, index_name: str, index_body: dict) -> None:
         """
         Create a new index for storing documents and chunks.
