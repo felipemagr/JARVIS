@@ -1,0 +1,30 @@
+// TODO: CHECK BETTER THIS
+{
+  "mappings": {
+    "properties": {
+      "texts": {
+        "type": "List[str]"
+      },
+      "vectors": {
+        "type": "List[float]"
+      },
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "chunk_id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

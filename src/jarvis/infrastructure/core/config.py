@@ -1,4 +1,3 @@
-import os
 import logging
 
 from pydantic import ConfigDict
@@ -8,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class Config(BaseSettings):
-
+    """Configuration settings for the Jarvis application."""
     COMPONENT_NAME: str = "jarvis"
     COMPONENT_DESCRIPTION: str = (
         "A modular FastAPI project using Cohere embeddings and vector search."
@@ -17,11 +16,18 @@ class Config(BaseSettings):
 
     GENAI_ENVIRONMENT: str = "local"
 
+    # Local Configuration
+    DATA_DIR: str = "./data/data.json"
+
     # Cohere Configuration
     COHERE_KEY: str = ""
-    EMB_DIMENSION: int = 3072   # transformers: 768, large: 3072
+    COHERE_EMB_MODEL: str = "embed-v4.0"
+    COHERE_INPUT_TYPE_INGESTOR: str = "search_document"  # Docs: # https://docs.cohere.com/v2/docs/embeddings
+    COHERE_INPUT_TYPE_QUERY: str = "search_query"
+    COHERE_EMB_DIMENSION: int = 1024
 
     # Vector Store Configuration
+    VECTORSTORE_CHUNK_SIZE: int = 100
     VECTORSTORE_INDEX_NAME: str = "jarvis01"
     VECTORSTORE_TOP_K: int = 5
     VECTORSTORE_ALGORITHM: str = "linear"   # linear, hierarchical

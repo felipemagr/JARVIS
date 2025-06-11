@@ -1,6 +1,8 @@
+import sys
 from typing import List
 
 #src
+sys.path.append("./")
 from src.jarvis.domain.search.utils import euclidean_distance, cosine_similarity
 
 

@@ -4,13 +4,10 @@ from uuid import UUID, uuid4
 
 
 class ChunkMetadata(BaseModel):
-    source: str
-    page: int
-    chunk_index: Optional[int] = None
+    document_id: UUID
+    chunk_id: int
 
 class Chunk(BaseModel):
-    id: UUID = Field(default_factory=uuid4)
     text: str
     embedding: List[float]
     metadata: ChunkMetadata
-    document_id: UUID
