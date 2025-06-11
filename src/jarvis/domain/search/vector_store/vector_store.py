@@ -7,6 +7,7 @@ sys.path.append("./")
 from src.jarvis.domain.search.algorithm.linear_knn import LinearKNN
 from src.jarvis.domain.search.algorithm.hierarchical_knn import HierarchicalKNN
 from src.jarvis.domain.genai.document import Document
+from src.jarvis.infrastructure.core.config import genai_config
 
 
 class VectorStore:
@@ -51,14 +52,14 @@ class VectorStore:
                 "mappings": {
                     "properties": {
                         "texts": {"type": "List[str]"},
-                        "vectors": {"type": "List[float]"},
+                        "vectors": {"type": "List[knn_vector]", "dimension": 1024},
                         "metadata": {
                             "type": "object",
                             "properties": {
-                                "document_id": {"type": "string"},
+                                "document_id": {"type": "UUID"},
                                 "title": {"type": "string"},
                                 "author": {"type": "string"},
-                                "chunk_id": {"type": "string"},
+                                "chunk_id": {"type": "int"},
                             }
                         },
                     }
@@ -73,7 +74,7 @@ class VectorStore:
             vector_props = index_body.get("mappings", {}).get("properties", {})
             dimension = None
             for _, props in vector_props.items():
-                if props.get("type") == "knn_vector" and "dimension" in props:
+                if props.get("type") == "List[knn_vector]" and "dimension" in props:
                     dimension = props["dimension"]
                     break
 
@@ -128,11 +129,11 @@ class VectorStore:
 
                 # Combined metadata: document metadata + chunk metadata
                 metadata = {
-                    "document_id": str(document.id),
+                    "document_id": document.metadata.document_id,
                     "title": document.metadata.title,
                     "author": document.metadata.author,
                     "created_date": document.metadata.created_date,
-                    "chunk_id": str(chunk.id)
+                    "chunk_id": chunk.metadata.chunk_id
                 }
 
                 index_data['texts'].append(text)
@@ -159,12 +160,12 @@ class VectorStore:
             dimension = index_data['dimension']
 
             # Check if document exists by scanning metadata
-            exists = any(meta.get('document_id') == str(document.document_id) for meta in index_data['metadata'])
+            exists = any(meta.get('document_id') == document.document_id for meta in index_data['metadata'])
             if not exists:
                 raise ValueError(f"Document with ID '{document.document_id}' not found in index '{index_name}'")
 
             # Delete old chunks related to the document
-            self.delete_document(index_name, str(document.document_id))
+            self.delete_document(index_name, document.document_id)
 
             # Index the updated document chunks (reuse your index_document method logic)
             for chunk in document.chunks:
@@ -175,11 +176,11 @@ class VectorStore:
                         f"Vector dimension {len(vector)} doesn't match index dimension {dimension}"
                     )
                 metadata = {
-                    "document_id": str(document.document_id),
+                    "document_id": document.document_id,
                     "title": document.metadata.title,
                     "author": document.metadata.author,
                     "created_date": document.metadata.created_date,
-                    "chunk_id": str(chunk.chunk_id)
+                    "chunk_id": chunk.chunk_id
                 }
                 index_data['texts'].append(text)
                 index_data['vectors'].append(vector)
@@ -219,7 +220,7 @@ class VectorStore:
                 del index_data['vectors'][idx]
                 del index_data['metadata'][idx]
 
-    def query_index(self, index_name: str, query_vector: List[float], top_k: int = 5, algorithm: Optional[str] = "linear", distance: Optional[str] = "euclidean", decay_factor: Optional[float] = 0.9) -> List[dict]:
+    def query_index(self, index_name: str, query_vector: List[float], top_k: Optional[int] = genai_config.VECTORSTORE_TOP_K, algorithm: Optional[str] = genai_config.VECTORSTORE_ALGORITHM, distance: Optional[str] = genai_config.VECTORSTORE_DISTANCE, decay_factor: Optional[float] = genai_config.VECTORSTORE_DECAY_FACTOR) -> List[dict]:
         """
         Query an index by a query vector to find the top-k nearest neighbors.
 
@@ -234,6 +235,7 @@ class VectorStore:
             List[dict]: List of results, each result is a dictionary with the following keys:
                 - id (str): Document ID.
                 - score (float): Similarity or distance score.
+                - text (str): Text of the chunk.
                 - metadata (dict): Document metadata (excluding vector_field).
 
         Raises:
@@ -253,6 +255,7 @@ class VectorStore:
                 
                 index_data = self.indexes[index_name]
                 vectors = index_data['vectors']
+                texts = index_data['texts']
                 metadata = index_data['metadata']
                 
                 if not vectors:
@@ -266,6 +269,7 @@ class VectorStore:
                     similarities.append({
                         'id': metadata[i]['document_id'],
                         'score': score,
+                        'text': texts[i],
                         'metadata': metadata[i]
                     })
                 

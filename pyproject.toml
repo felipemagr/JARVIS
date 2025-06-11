@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jarvis"
-version = "0.1.0"
+version = "1.0.0"
 description = "A modular FastAPI project using Cohere embeddings and vector search."
 authors = ["Felipe Macías <felipemaciasgranado@gmail.com>"]
 license = "MIT"
@@ -16,6 +16,7 @@ numpy = "2.3.0"
 cohere = "5.15.0"
 pydantic-settings = "^2.9.1"
 tiktoken = "^0.9.0"
+pytest = "^8.4.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.4.0"

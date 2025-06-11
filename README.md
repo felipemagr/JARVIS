@@ -1,6 +1,6 @@
 # jarvis
 
-- **Version**  0.1.0
+- **Version**  1.0.0
 
 - **Author:** Felipe Macías Granado
 
@@ -40,3 +40,17 @@ make help
 - Sample data has been generated with OpenAI's GPT-3.5.
 - To prevent data races during concurrent reads and writes, all access to the in-memory index data is protected by a reentrant lock (threading.RLock). This ensures that only one thread can modify or read the shared data at a time.
 - The `Ingestor` class is a dedicated service responsible for ingesting and processing raw data from JSON files, i.e., performing ETL (Extract, Transform, Load). It handles parsing documents, splitting them into token chunks, generating embeddings via Cohere API, and structuring domain objects. It encapsulates ingestion logic separately from API endpoints and the vectorstore persistence layer.
+- I relied more on AI than I would have preferred when building the API, as this is the area where I have the least experience. I've previously worked with APIs, but this was my first time designing and building one from scratch.
+
+## Running the application
+### Local
+
+### Development
+```
+python src/jarvis/run.py --reload --log-level debug
+```
+
+### Production
+```
+python src/jarvis/run.py --host 0.0.0.0 --port 8000 --log-level info
+```

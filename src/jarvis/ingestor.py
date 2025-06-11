@@ -1,4 +1,3 @@
-import os
 import sys
 import json
 import cohere
@@ -56,7 +55,7 @@ class Ingestor:
             for i in range(0, len(tokens), max_tokens):
                 chunk_tokens = tokens[i:i + max_tokens]
                 chunk_text = enc.decode(chunk_tokens)
-                chunk_index=int(i//len(tokens))
+                chunk_index = i // max_tokens
 
                 # Get embedding for this chunk
                 logger.info(f"Getting embeddings with Cohere API for the chunk {chunk_index} of the document {document.metadata.title}")
@@ -73,15 +72,17 @@ class Ingestor:
                     text=chunk_text,
                     embedding=embedding,
                     metadata=ChunkMetadata(
-                        document_id=document.id,
-                        chunk_index=chunk_index,
+                        document_id=document.metadata.document_id,
+                        chunk_id=chunk_index,
                     )
                 )
 
                 document.add_chunk(chunk)
 
-if __name__ == "__main__":
+                yield chunk
 
+if __name__ == "__main__":
+    # === Ingestor ===
     ingestor = Ingestor()
 
     print(f"\n✅ Found {len(ingestor.data)} document(s) in '{genai_config.DATA_DIR}'")
@@ -91,7 +92,7 @@ if __name__ == "__main__":
         print(f"📄 Document {idx+1}: '{doc.metadata.title}' by {doc.metadata.author}")
 
     # Generate chunks
-    ingestor.chunk_generator(max_tokens=100)
+    chunks = list(ingestor.chunk_generator(max_tokens=100))
 
     # Summary after chunking
     for idx, doc in enumerate(ingestor.data):
@@ -100,5 +101,5 @@ if __name__ == "__main__":
             print(f"  🔹 Chunk {i}:")
             print(f"     - Text preview: {chunk.text[:60]!r}...")
             print(f"     - Embedding size: {len(chunk.embedding)}")
-            print(f"     - Chunk index: {chunk.metadata.chunk_index}")
-            print(f"     - Document ID: {chunk.document_id}")
+            print(f"     - Chunk index: {chunk.metadata.chunk_id}")
+            print(f"     - Document ID: {chunk.metadata.document_id}")

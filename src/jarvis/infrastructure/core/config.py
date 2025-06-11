@@ -3,6 +3,8 @@ import logging
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
+# logger
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -12,12 +14,14 @@ class Config(BaseSettings):
     COMPONENT_DESCRIPTION: str = (
         "A modular FastAPI project using Cohere embeddings and vector search."
     )
-    COMPONENT_VERSION: str = "0.1.0"
+    COMPONENT_VERSION: str = "1.0.0"
 
     GENAI_ENVIRONMENT: str = "local"
 
     # Local Configuration
     DATA_DIR: str = "./data/data.json"
+    INDEX_BODY_DIR: str = "./src/jarvis/infrastructure/core/vectorstore_index_body.json"
+    LOCAL_QUERY: str = "Space anomalies encountered by the Odyssey"
 
     # Cohere Configuration
     COHERE_KEY: str = ""
@@ -31,7 +35,7 @@ class Config(BaseSettings):
     VECTORSTORE_INDEX_NAME: str = "jarvis01"
     VECTORSTORE_TOP_K: int = 5
     VECTORSTORE_ALGORITHM: str = "linear"   # linear, hierarchical
-    VECTORSTORE_DISTANCE: str = "euclidean"
+    VECTORSTORE_DISTANCE: str = "euclidean" # euclidean, cosine
     VECTORSTORE_INDEX_BODY: str = "vectorstore_index_body.json"
     
     # Hierarchical KNN Configuration

@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional
-from uuid import UUID, uuid4
+from pydantic import BaseModel
+from typing import List
+from uuid import UUID
 
 
 class ChunkMetadata(BaseModel):

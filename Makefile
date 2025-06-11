@@ -31,6 +31,13 @@ clean:  ## Clean unused files.
 	@rm -rf .cache .pytest_cache .mypy_cache build dist *.egg-info htmlcov .tox/ docs/_build
 	@echo "Project cleaned."
 
+.PHONY: test
+test:  ## Run tests and generate coverage report.
+	@export GENAI_ENVIRONMENT=test && \
+	poetry run coverage run -m pytest --junitxml=xunit-result.xml   && \
+	poetry run coverage report  && \
+	poetry run coverage xml
+
 .PHONY: download-poetry
 download-poetry:  ## Download poetry
 	@echo "Installing poetry ${POETRY_VERSION}..."
