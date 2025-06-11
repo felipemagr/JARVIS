@@ -31,6 +31,23 @@ clean:  ## Clean unused files.
 	@rm -rf .cache .pytest_cache .mypy_cache build dist *.egg-info htmlcov .tox/ docs/_build
 	@echo "Project cleaned."
 
+.PHONY: docker-build
+docker-build:  ## Build the docker image.
+	@export GENAI_ENVIRONMENT=local;
+	$(DOCKER_COMMAND_FLAG) build \
+		--platform linux/amd64 \
+		--build-arg GENAI_ENVIRONMENT=$(GENAI_ENVIRONMENT) \
+		-t $(PROJECT_NAME):$(PROJECT_VERSION) .
+
+.PHONY: docker-run
+docker-run:  ## Run the docker image.
+	-$(DOCKER_COMMAND_FLAG) network create jarvis-net
+	$(DOCKER_COMMAND_FLAG) run --rm --platform linux/amd64 \
+		-p 8000:8000 \
+		--network=jarvis-net \
+		--name $(PROJECT_NAME) \
+		$(PROJECT_NAME):$(PROJECT_VERSION)
+
 .PHONY: test
 test:  ## Run tests and generate coverage report.
 	@export GENAI_ENVIRONMENT=test && \

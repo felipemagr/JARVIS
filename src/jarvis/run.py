@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Startup script for the Vector Search API
+Startup script for the JARVIS API
 """
 import uvicorn
 import argparse
 import logging
 
 def main():
-    parser = argparse.ArgumentParser(description="Vector Search API Server")
+    parser = argparse.ArgumentParser(description="JARVIS API Server")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload for development")
