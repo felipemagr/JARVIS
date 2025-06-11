@@ -1,0 +1,8 @@
+# Secret files
+.env
+
+# Other files
+poetry.lock
+.DS_Store
+__pycache__/
+*.py[cod]

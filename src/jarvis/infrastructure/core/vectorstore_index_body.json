@@ -1,0 +1,30 @@
+{
+  "mappings": {
+    "properties": {
+      "texts": {
+        "type": "List[str]"
+      },
+      "vectors": {
+        "type": "List[knn_vector]",
+        "dimension": 1024
+      },
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "UUID"
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "chunk_id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

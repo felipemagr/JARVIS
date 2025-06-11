@@ -1,0 +1,255 @@
+{
+	"info": {
+		"_postman_id": "f297a725-2054-4c5f-9580-847d364779c1",
+		"name": "JARVIS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41327041"
+	},
+	"item": [
+		{
+			"name": "/health",
+			"item": [
+				{
+					"name": "/",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/documents",
+			"item": [
+				{
+					"name": "list_documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/documents/{index_name}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"documents",
+								"{index_name}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upload_document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"index_name\": \"jarvis01\",\n    \"title\": \"The Unexpected Journey to the Stars\",\n    \"author\": \"John Doe\",\n    \"created_date\": \"2025-06-10\",\n    \"full_text\": \"In a world where technology had reached unimaginable heights, humanity looked to the cosmos with a mixture of hope and fear. For centuries, the desire to explore the universe had driven adventurers and scientists alike. The story begins with a small crew aboard the starship Odyssey, embarking on a mission beyond the edge of the known galaxy. Their journey was filled with challenges — from navigating treacherous asteroid fields to encountering phenomena that defied all current scientific understanding. As days turned to months, the crew forged deep bonds, relying on one another in the face of isolation and the vast, cold expanse of space. Meanwhile, back on Earth, political tensions rose, as different factions vied for control over the new technologies being developed for space travel. The Odyssey’s voyage became not only a tale of exploration but also a symbol of unity and perseverance for a planet on the brink of transformation. Throughout their travels, the crew documented strange alien worlds, mysterious signals, and unexpected allies, forever changing humanity’s place in the universe.\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/documents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete_document",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/documents/{index_name}/{document_id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"documents",
+								"{index_name}",
+								"{document_id}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/indexes",
+			"item": [
+				{
+					"name": "create_index",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"index_name\": \"jarvis01\",\n  \"index_body\": {\n    \"mappings\": {\n      \"properties\": {\n        \"texts\": { \"type\": \"List[str]\" },\n        \"vectors\": { \"type\": \"List[knn_vector]\", \"dimension\": 1024 },\n        \"metadata\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"document_id\": { \"type\": \"string\" },\n            \"title\": { \"type\": \"string\" },\n            \"author\": { \"type\": \"string\" },\n            \"chunk_id\": { \"type\": \"string\" }\n          }\n        }\n      }\n    }\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/indexes/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"indexes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list_indexes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/indexes/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"indexes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_index_info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/indexes/{index_name}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"indexes",
+								"{index_name}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete_index",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8000/indexes/{index_name}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"indexes",
+								"{index_name}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/search",
+			"item": [
+				{
+					"name": "search_by_text",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"index_name\": \"jarvis01\",\n  \"query_text\": \"Navigating asteroid fields\",\n  \"top_k\": 5,\n  \"algorithm\": \"linear\",         // linear, hierarchical\n  \"distance\": \"euclidean\",       // euclidean, cosine\n  \"decay_factor\": 0.9\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/search/text",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"search",
+								"text"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
