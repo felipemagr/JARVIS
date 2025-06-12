@@ -19,7 +19,7 @@ if __name__ == "__main__":
         index_body = json.load(f)
 
     # === Ingestor ===
-    ingestor = Ingestor()
+    ingestor = Ingestor(auto_ingest=True)
 
     print(f"\n✅ Found {len(ingestor.data)} document(s) in '{genai_config.DATA_DIR}'")
 

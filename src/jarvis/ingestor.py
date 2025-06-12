@@ -3,6 +3,7 @@ import json
 import cohere
 import logging
 import tiktoken
+from typing import Optional
 
 # src
 sys.path.append("./")
@@ -17,11 +18,13 @@ logger = logging.getLogger(__name__)
 
 class Ingestor:
     """Ingestor class for handling data ingestion from JSON files."""
-    def __init__(self):
+    def __init__(self, auto_ingest: Optional[bool] = False):
         self.data = []
         self.client = cohere.ClientV2(api_key=genai_config.COHERE_KEY)
         self.model = genai_config.COHERE_EMB_MODEL
-        self.extract_data_from_json()
+
+        if auto_ingest:
+            self.extract_data_from_json()
 
     def extract_data_from_json(self):
         dir_path = genai_config.DATA_DIR
