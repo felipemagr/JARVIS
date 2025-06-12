@@ -77,15 +77,15 @@ Once the application is running, you can test the available endpoints using the 
 
 #### LinearKNN
 
-- **Space Complexity:** O(d) — stores vectors of dimension *d*.
-- **Time Complexity:** O(d) per similarity calculation.
-- **Reason for Choice:**  
+- **Space Complexity:** O(n*d) — stores vectors of dimension d.
+- **Time Complexity:** O(n*d) per similarity calculation.
+- **Reason for Choice:**
   A straightforward brute-force method serving as a baseline. It makes no assumptions about the vector structure and is simple to implement. However, it is inefficient for large datasets since it performs linear comparisons across all vectors.
 
 #### HierarchicalKNN
 
-- **Space Complexity:** O(d) — stores hierarchical weights and vectors.
-- **Time Complexity:** O(d) per scoring, slightly higher than LinearKNN due to the weighting computations.
+- **Space Complexity:** >O(n*d) — stores hierarchical weights and vectors.
+- **Time Complexity:** >O(n*d) per scoring, slightly higher than LinearKNN due to the weighting computations.
 - **Reason for Choice:**  
   Incorporates hierarchical weighting of dimensions, based on the assumption that earlier dimensions carry more importance. This approach aims to improve similarity scoring by emphasizing important features and is especially useful when vector dimensions have differing significance.
 

@@ -43,6 +43,7 @@ docker-build:  ## Build the docker image.
 docker-run:  ## Run the docker image.
 	-$(DOCKER_COMMAND_FLAG) network create jarvis-net
 	$(DOCKER_COMMAND_FLAG) run --rm --platform linux/amd64 \
+		--env-file .env \
 		-p 8000:8000 \
 		--network=jarvis-net \
 		--name $(PROJECT_NAME) \
