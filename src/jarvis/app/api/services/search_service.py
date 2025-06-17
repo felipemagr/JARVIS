@@ -1,6 +1,6 @@
 import sys
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 # src
 sys.path.append("./")
@@ -25,7 +25,8 @@ class SearchService:
         top_k: int = genai_config.VECTORSTORE_TOP_K,
         algorithm: str = genai_config.VECTORSTORE_ALGORITHM,
         distance: str = genai_config.VECTORSTORE_DISTANCE,
-        decay_factor: float = genai_config.VECTORSTORE_DECAY_FACTOR
+        decay_factor: float = genai_config.VECTORSTORE_DECAY_FACTOR,
+        filter: Optional[dict] = None
     ) -> List[Dict[str, Any]]:
         """Search by delegating to the existing Retrieval class."""
         
@@ -38,5 +39,6 @@ class SearchService:
             top_k=top_k,
             algorithm=algorithm,
             distance=distance,
-            decay_factor=decay_factor
+            decay_factor=decay_factor,
+            filter=filter
         )

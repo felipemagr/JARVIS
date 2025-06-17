@@ -1,6 +1,6 @@
 # jarvis
 
-- **Version**  1.0.0
+- **Version**  1.1.0
 
 - **Author:** Felipe Macías Granado
 
@@ -11,6 +11,11 @@ JARVIS is a playful nod to Tony Stark’s legendary AI assistant. And just like 
 
 ## Disclaimer
 > I am a new wave developer, therefore I use generative AI in my workflow. I typically break problems down into smaller tasks and use AI selectively to assist with these. However, this does not mean the code is fully AI-generated, as I prioritize my own critical thinking and creativity throughout the process. I also use AI to help generate synthetic data and to improve comments and docstrings. The underlying logic, ideas, and overall design are entirely my own. Technologies/Models used (free limited accounts): Copilot, GPT-4o/GPT-4.1-mini and, mainly, Claude Sonnet 4 ([and this is why](https://livebench.ai/#/)).
+
+## Release Notes
+
+* `1.0.0` Stable baseline.
+* `1.1.0` Add filtering of metadata.
 
 ## Pre-requirements
 
@@ -100,7 +105,7 @@ Due to time contraints and while also prioritising the speed I could come up wit
 ### 1. Metadata filtering & dinamic index body
 
 - **Approach:**  
-  The metadata filtering should be fairly easy. It is just a matter of introducing a filter with the desired metadata as an optional parameter in VectorStore.query_index(). If the filter is not empty -> we keep the data from index_data that matches (aka let's copy the variable index_data, do the filtering, and use it for the search).
+  The metadata filtering should be fairly easy. It is just a matter of introducing a filter with the desired metadata as an optional parameter in VectorStore.query_index(). If the filter is not empty -> we keep the data from index_data that matches (aka let's copy the variable index_data, do the filtering, and use it for the search). ✅ (see v1.1.0).
 
   The flexible index body is way trickier. First-thought, it can look easy, as you just need to change create_index to a more general approach. But this would trigger problems in how to query the indexes (and probably more stuff that does not come into my mind yet). I need to further think about this.
 
