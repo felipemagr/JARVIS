@@ -248,6 +248,35 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "search_by_text_metadata",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"index_name\": \"jarvis01\",\n  \"query_text\": \"Navigating asteroid fields\",\n  \"top_k\": 5,\n  \"algorithm\": \"linear\",         // linear, hierarchical\n  \"distance\": \"euclidean\",       // euclidean, cosine\n  \"decay_factor\": 0.9,\n  \"filter\": {\n    \"author\": \"John Doe\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/search/text",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"search",
+								"text"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
