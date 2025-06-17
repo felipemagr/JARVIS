@@ -219,7 +219,7 @@ class VectorStore:
                 del index_data['vectors'][idx]
                 del index_data['metadata'][idx]
 
-    def query_index(self, index_name: str, query_vector: List[float], top_k: Optional[int] = genai_config.VECTORSTORE_TOP_K, algorithm: Optional[str] = genai_config.VECTORSTORE_ALGORITHM, distance: Optional[str] = genai_config.VECTORSTORE_DISTANCE, decay_factor: Optional[float] = genai_config.VECTORSTORE_DECAY_FACTOR) -> List[dict]:
+    def query_index(self, index_name: str, query_vector: List[float], top_k: Optional[int] = genai_config.VECTORSTORE_TOP_K, algorithm: Optional[str] = genai_config.VECTORSTORE_ALGORITHM, distance: Optional[str] = genai_config.VECTORSTORE_DISTANCE, decay_factor: Optional[float] = genai_config.VECTORSTORE_DECAY_FACTOR, filter: Optional[dict] = None) -> List[dict]:
         """
         Query an index by a query vector to find the top-k nearest neighbors.
 
@@ -229,6 +229,7 @@ class VectorStore:
             top_k (int, optional): Number of nearest neighbors to return. Defaults to 5.
             algorithm (Optional[str], optional): Search algorithm to use (e.g., "linear"). Defaults to "linear".
             distance (Optional[str], optional): Distance or similarity metric to use ("cosine" or "euclidean"). Defaults to "euclidean".
+            filter (Optional[dict], optional): Metadata filter dictionary. Can contain 'document_id', 'title', 'author', and/or 'created_date'. Defaults to None.
 
         Returns:
             List[dict]: List of results, each result is a dictionary with the following keys:
@@ -238,52 +239,98 @@ class VectorStore:
                 - metadata (dict): Document metadata (excluding vector_field).
 
         Raises:
-            ValueError: If the specified index does not exist.
+            ValueError: If the specified index does not exist or if filter contains invalid keys.
             NotImplementedError: If the specified algorithm is not implemented.
         """
         with self._lock:
             if index_name not in self.indexes:
                 raise ValueError(f"Index '{index_name}' does not exist")
-            
-            if algorithm in {"linear", "hierarchical"}:
-                # Select the appropriate KNN class
-                if algorithm == "linear":
-                    knn = LinearKNN(distance_metric=distance.lower())
-                elif algorithm == "hierarchical":
-                    knn = HierarchicalKNN(distance_metric=distance.lower(), decay_factor=decay_factor)
-                
-                index_data = self.indexes[index_name]
-                vectors = index_data['vectors']
-                texts = index_data['texts']
-                metadata = index_data['metadata']
-                
-                if not vectors:
-                    return []
-                
-                # Calculate similarities/distances using LinearKNN
-                similarities = []
-                for i, stored_vector in enumerate(vectors):
-                    # Use the LinearKNN.score() method to calculate scores
-                    score = knn.score(query_vector, stored_vector)
-                    similarities.append({
-                        'id': metadata[i]['document_id'],
-                        'score': score,
-                        'text': texts[i],
-                        'metadata': metadata[i]
-                    })
-                
-                # Sort by score
-                # NOTE: For cosine similarity -> higher is better (descending)
-                # NOTE: For euclidean distance -> lower is better (ascending)
-                if distance.lower() == "cosine":
-                    similarities.sort(key=lambda x: x['score'], reverse=True)
-                elif distance.lower() == "euclidean":
-                    similarities.sort(key=lambda x: x['score'], reverse=False)
-                
-                return similarities[:top_k]
-            
-            else:
+
+            # Validate the filter
+            self._validate_filter(filter)
+
+            if algorithm not in {"linear", "hierarchical"}:
                 raise NotImplementedError(f"Algorithm '{algorithm}' is not implemented")
+
+            # Select the appropriate KNN class
+            if algorithm == "linear":
+                knn = LinearKNN(distance_metric=distance.lower())
+            elif algorithm == "hierarchical":
+                knn = HierarchicalKNN(distance_metric=distance.lower(), decay_factor=decay_factor)
+                
+            index_data = self.indexes[index_name]
+            vectors = index_data['vectors']
+            texts = index_data['texts']
+            metadata = index_data['metadata']
+            
+            if not vectors:
+                return []
+
+            # Apply filter
+            vectors, texts, metadata = self.apply_filter(vectors, texts, metadata, filter)
+
+            if not vectors:
+                return []
+
+            # Calculate similarities/distances using LinearKNN
+            similarities = []
+            for i, stored_vector in enumerate(vectors):
+                # Use the LinearKNN.score() method to calculate scores
+                score = knn.score(query_vector, stored_vector)
+                similarities.append({
+                    'id': metadata[i]['document_id'],
+                    'score': score,
+                    'text': texts[i],
+                    'metadata': metadata[i]
+                })
+            
+            # Sort by score
+            # NOTE: For cosine similarity -> higher is better (descending)
+            # NOTE: For euclidean distance -> lower is better (ascending)
+            if distance.lower() == "cosine":
+                similarities.sort(key=lambda x: x['score'], reverse=True)
+            elif distance.lower() == "euclidean":
+                similarities.sort(key=lambda x: x['score'], reverse=False)
+            
+            return similarities[:top_k]
+
+
+    def _validate_filter(self, filter: Optional[dict]) -> None:
+        """Validate that filter contains only allowed keys."""
+        if filter is not None:
+            valid_filter_keys = {'document_id', 'title', 'author', 'created_date'}
+            invalid_keys = set(filter.keys()) - valid_filter_keys
+            if invalid_keys:
+                raise ValueError(f"Invalid filter keys: {invalid_keys}. Valid keys are: {valid_filter_keys}")
+
+
+    def apply_filter(self, vectors, texts, metadata, filter_dict):
+        """
+        Filters vectors, texts, and metadata based on a metadata filter dictionary.
+
+        Args:
+            vectors (List[List[float]]): List of vectors.
+            texts (List[str]): List of text chunks.
+            metadata (List[dict]): List of metadata dictionaries.
+            filter_dict (dict): Dictionary with filter conditions.
+
+        Returns:
+            Tuple[List[List[float]], List[str], List[dict]]: Filtered vectors, texts, and metadata.
+        """
+        if not filter_dict:
+            return vectors, texts, metadata
+
+        filtered_indices = [
+            i for i, meta in enumerate(metadata)
+            if all(meta.get(k) == v for k, v in filter_dict.items())
+        ]
+        
+        return (
+            [vectors[i] for i in filtered_indices],
+            [texts[i] for i in filtered_indices],
+            [metadata[i] for i in filtered_indices]
+        )
+
 
     def close(self) -> None:
         """Close the connection"""

@@ -14,7 +14,7 @@ class Config(BaseSettings):
     COMPONENT_DESCRIPTION: str = (
         "A modular FastAPI project using Cohere embeddings and vector search."
     )
-    COMPONENT_VERSION: str = "1.0.0"
+    COMPONENT_VERSION: str = "1.1.0"
 
     GENAI_ENVIRONMENT: str = "local"
 

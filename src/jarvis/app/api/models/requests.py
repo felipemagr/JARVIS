@@ -20,3 +20,7 @@ class SearchRequest(BaseModel):
     algorithm: str = Field(default="linear", description="Search algorithm")
     distance: str = Field(default="cosine", description="Distance metric")
     decay_factor: Optional[float] = Field(default=0.9, description="Decay factor for hierarchical search")
+    filter: Optional[Dict[str, Any]] = Field(
+        default=None, 
+        description="Metadata filter dictionary. Can contain 'document_id', 'title', 'author', and/or 'created_date'"
+    )

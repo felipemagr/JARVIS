@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jarvis"
-version = "1.0.0"
+version = "1.1.0"
 description = "A modular FastAPI project using Cohere embeddings and vector search."
 authors = ["Felipe Macías <felipemaciasgranado@gmail.com>"]
 license = "MIT"

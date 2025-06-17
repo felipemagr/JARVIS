@@ -30,7 +30,8 @@ async def search_by_text(
             top_k=request.top_k,
             algorithm=request.algorithm,
             distance=request.distance,
-            decay_factor=request.decay_factor
+            decay_factor=request.decay_factor,
+            filter=request.filter
         )
         query_time_ms = (time.time() - start_time) * 1000
         
